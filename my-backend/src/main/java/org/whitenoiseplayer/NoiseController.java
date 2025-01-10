@@ -1,11 +1,12 @@
 package org.whitenoiseplayer;
 
 import org.springframework.web.bind.annotation.*;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
+
+import javax.sound.sampled.*;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 @SuppressWarnings("CallToPrintStackTrace")
 @RestController
@@ -13,6 +14,8 @@ import java.io.File;
 public class NoiseController {
 
     private Clip clip;
+    private byte[] audioBytes;
+    private AudioFormat audioFormat;
 //    private static final String path = "C:/Users/David/Downloads/Brown.wav"; //Uncomment this line when debugging
     private static final String path = "/home/pi/BrownNoise/Brown.wav"; //Comment out when debugging
 
@@ -22,6 +25,22 @@ public class NoiseController {
         } catch (LineUnavailableException e) {
             throw new RuntimeException("Failed to initialize audio clip", e);
         }
+
+        // Load the entire audio file into memory during initialization
+        try {
+            loadAudioData();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load audio data", e);
+        }
+
+    }
+
+    private void loadAudioData() throws UnsupportedAudioFileException, IOException {
+        File audioFile = new File(path);
+        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(audioFile);
+        audioFormat = audioInputStream.getFormat();
+        audioBytes = audioInputStream.readAllBytes();
+        audioInputStream.close(); // Close stream after reading
     }
 
     @PostMapping("/play")
@@ -30,8 +49,8 @@ public class NoiseController {
             return "Noise is already playing.";
         }
         try {
-            File audioFile = new File(path);
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(audioFile);
+            InputStream byteStream = new ByteArrayInputStream(audioBytes);
+            AudioInputStream audioInputStream = new AudioInputStream(byteStream, audioFormat, audioBytes.length / audioFormat.getFrameSize());
             clip.open(audioInputStream);
             clip.loop(Clip.LOOP_CONTINUOUSLY);
             return "Brown Noise started playing.";
