@@ -11,6 +11,7 @@ import java.io.InputStream;
 @SuppressWarnings("CallToPrintStackTrace")
 @RestController
 @RequestMapping("/api/noise") // Base path for the API
+@CrossOrigin(origins = "*") // Allow all devices on the network
 public class NoiseController {
 
     private Clip clip;
@@ -46,6 +47,7 @@ public class NoiseController {
     @PostMapping("/play")
     public String playBrownNoise() {
         if (clip.isRunning()) {
+            System.out.println("/play: Noise is already playing.");
             return "Noise is already playing.";
         }
         try {
@@ -53,6 +55,7 @@ public class NoiseController {
             AudioInputStream audioInputStream = new AudioInputStream(byteStream, audioFormat, audioBytes.length / audioFormat.getFrameSize());
             clip.open(audioInputStream);
             clip.loop(Clip.LOOP_CONTINUOUSLY);
+            System.out.println("/play: Brown Noise started playing.");
             return "Brown Noise started playing.";
         } catch (Exception e) {
             e.printStackTrace();
@@ -65,8 +68,20 @@ public class NoiseController {
         if (clip.isRunning()) {
             clip.stop();
             clip.close();
+            System.out.println("/stop: Brown Noise stopped.");
             return "Brown Noise stopped.";
         }
+        System.out.println("/stop: Noise is not currently playing.");
         return "Noise is not currently playing.";
+    }
+    @GetMapping("/status")
+    public Boolean getNoiseStatus() {
+        if (clip.isRunning()) {
+            System.out.println("/status playing? True.");
+            return true;
+        } else {
+            System.out.println("/status playing? False.");
+            return false;
+        }
     }
 }

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play/Pause Button</title>
+    <style>
+        button {
+            font-size: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: grey;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+<button id="playButton">Play</button>
+
+<script>
+    const playButton = document.getElementById('playButton');
+    let isPlaying = false;
+
+    // Function to fetch the status from the server
+    const fetchStatus = async () => {
+        try {
+            const response = await fetch('http://192.168.0.95:8080/api/noise/status'); // `/status` API call
+            if (response.ok) {
+                const data = await response.json(); // Assuming the server returns `{ isPlaying: true/false }`
+                isPlaying = data.isPlaying;
+                // Set button text based on `isPlaying`
+                playButton.textContent = isPlaying ? 'Pause' : 'Play';
+            } else {
+                console.error('Failed to fetch status:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error fetching status:', error);
+        }
+    };
+
+    // Function to handle button clicks (as before)
+    const togglePlayPause = async () => {
+        // Disable the button temporarily to prevent double-clicks
+        playButton.disabled = true;
+
+        const apiUrl = `http://192.168.0.95:8080/api/noise/${isPlaying ? 'stop' : 'play'}`;
+
+        try {
+            const response = await fetch(apiUrl, { method: 'POST' });
+
+            if (response.ok) {
+                isPlaying = !isPlaying;
+
+                // Toggle button text after successful response
+                playButton.textContent = isPlaying ? 'Pause' : 'Play';
+            } else {
+                console.error('Failed to send request:', response.statusText);
+            }
+        } catch (error) {
+            console.error('Error while sending request:', error);
+        } finally {
+            // Re-enable the button after processing
+            playButton.disabled = false;
+        }
+    };
+
+    // Add event listener for button clicks
+    playButton.addEventListener('click', togglePlayPause);
+
+    // Fetch the initial status on page load
+    document.addEventListener('DOMContentLoaded', fetchStatus);
+</script>
+</body>
+</html>
