@@ -31,9 +31,9 @@
     // Function to fetch the status from the server
     const fetchStatus = async () => {
         try {
-            const response = await fetch('http://192.168.0.95:8080/api/noise/status'); // `/status` API call
+            const response = await fetch('http://192.168.0.95:8080/api/noise/status');
             if (response.ok) {
-                const data = await response.json(); // Assuming the server returns `{ isPlaying: true/false }`
+                const data = await response.json();
                 isPlaying = data.isPlaying;
                 // Set button text based on `isPlaying`
                 playButton.textContent = isPlaying ? 'Pause' : 'Play';
@@ -45,7 +45,6 @@
         }
     };
 
-    // Function to handle button clicks (as before)
     const togglePlayPause = async () => {
         // Disable the button temporarily to prevent double-clicks
         playButton.disabled = true;

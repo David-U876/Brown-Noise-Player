@@ -17,8 +17,7 @@ public class NoiseController {
     private Clip clip;
     private byte[] audioBytes;
     private AudioFormat audioFormat;
-//    private static final String path = "C:/Users/David/Downloads/Brown.wav"; //Uncomment this line when debugging
-    private static final String path = "/home/pi/BrownNoise/Brown.wav"; //Comment out when debugging
+    private static final String path = "/home/pi/BrownNoise/Brown.wav";
 
     public NoiseController() {
         try {
